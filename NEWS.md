@@ -5,6 +5,7 @@
 * `step_lag` can lag variables in the data set (contributed by Alex Hayes).
 * `step_naomit` removes rows with missing data for specific columns (contributed by Alex Hayes). 
 * `step_rollimpute` can be used to impute data in a sequence or series by estimating their values within a moving window. 
+* `step_nnmf` computes a non-negative matrix factorization using the [`dimRed`](https://cran.r-project.org/package=dimRed) and [`NNLM`](https://cran.r-project.org/package=NNLM) packages. 
 
 ## Other Changes:
 
