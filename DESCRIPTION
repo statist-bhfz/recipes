@@ -33,7 +33,8 @@ Imports:
     magrittr,
     Matrix,
     tidyr,
-    withr
+    withr,
+    pls
 Suggests: 
     testthat,
     rpart,
