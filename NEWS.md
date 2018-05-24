@@ -12,6 +12,11 @@
 
  * `step_log` gained an `offset` argument. 
  * The internal functions `sel2char` and `printer` have been exported to enable [other packages to contain steps](https://github.com/topepo/recipes/issues/122).
+ * `step_dummy` can compute the [entire set of dummy variables](https://github.com/topepo/recipes/issues/145) per factor predictor using the `one_hot = TRUE` option. Thanks to Davis Vaughan. 
+ * The `contrast` option for `step_dummy` was removed. The step uses the global option for contrasts. 
+ * `step_bin2factor` now has an option to choose [how the values are translated to the levels](https://github.com/topepo/recipes/issues/142) (contributed by Michael Levy).
+ * `bake` and `juice` can now export basic data frames. 
+ * The `okc` data were updated with two additional columns. 
 
 ## Bug Fixes: 
   
