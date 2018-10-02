@@ -14,8 +14,8 @@
 #'  role should they be assigned?. By default, the function assumes
 #'  that the new component columns created by the
 #'  original variables will be used as predictors in a model.
-#' @param num The number of components to retain as new
-#'  predictors. If `num` is greater than the number of columns
+#' @param num_comp The number of components to retain as new
+#'  predictors. If `num_comp` is greater than the number of columns
 #'  or the number of possible components, a smaller value will be
 #'  used.
 #' @param options A list of options to
@@ -41,7 +41,7 @@
 #'  have non-negative values and take into account that the original data
 #'  have non-negative values.
 #'
-#' The argument `num` controls the number of components that
+#' The argument `num_comp` controls the number of components that
 #'  will be retained (the original variables that are used to derive
 #'  the components are removed from the data). The new components
 #'  will have names that begin with `prefix` and a sequence of
@@ -56,7 +56,7 @@
 #' rec <- recipe(HHV ~ ., data = biomass) %>%
 #'   add_role(sample, new_role = "id var") %>%
 #'   add_role(dataset, new_role = "split variable") %>%
-#'   step_nnmf(all_predictors(), num = 2, seed = 473) %>%
+#'   step_nnmf(all_predictors(), num_comp = 2, seed = 473) %>%
 #'   prep(training = biomass, retain = TRUE)
 #'
 #' juice(rec)
@@ -71,49 +71,44 @@ step_nnmf <-
            ...,
            role = "predictor",
            trained = FALSE,
-           num  = 2,
+           num_comp  = 2,
            options = list(verbose = 0),
            res = NULL,
            prefix = "NNMF",
            seed = 5999,
-           skip = FALSE) {
+           skip = FALSE,
+           id = "nnmf") {
     add_step(
       recipe,
       step_nnmf_new(
         terms = ellipse_check(...),
         role = role,
         trained = trained,
-        num = num,
+        num_comp = num_comp,
         options = options,
         res = res,
         prefix = prefix,
         seed = seed,
-        skip = skip
+        skip = skip,
+        id = id
       )
     )
   }
 
 step_nnmf_new <-
-  function(terms = NULL,
-           role = "predictor",
-           trained = FALSE,
-           num  = NULL,
-           options = NULL,
-           res = NULL,
-           prefix = "NNMF",
-           seed = NULL,
-           skip = FALSE) {
+  function(terms, role, trained, num_comp, options, res, prefix, seed, skip, id) {
     step(
       subclass = "nnmf",
       terms = terms,
       role = role,
       trained = trained,
-      num = num,
+      num_comp = num_comp,
       options = options,
       res = res,
       prefix = prefix,
       seed = seed,
-      skip = skip
+      skip = skip,
+      id = id
     )
   }
 
@@ -124,10 +119,10 @@ prep.step_nnmf <- function(x, training, info = NULL, ...) {
   col_names <- terms_select(x$terms, info = info)
   check_type(training[, col_names])
 
-  x$num <- min(x$num, length(col_names))
+  x$num_comp <- min(x$num_comp, length(col_names))
 
   opts <- x$options
-  opts$ndim <- x$num
+  opts$ndim <- x$num_comp
   opts$.data <- dimRedData(as.data.frame(training[, col_names, drop = FALSE]))
   opts$.method <- "NNMF"
 
@@ -137,12 +132,13 @@ prep.step_nnmf <- function(x, training, info = NULL, ...) {
     terms = x$terms,
     role = x$role,
     trained = TRUE,
-    num = x$num,
+    num_comp = x$num_comp,
     options = x$options,
     res = nnm,
     prefix = x$prefix,
     seed = x$seed,
-    skip = x$skip
+    skip = x$skip,
+    id = x$id
   )
 }
 
@@ -155,7 +151,7 @@ bake.step_nnmf <- function(object, newdata, ...) {
         as.data.frame(newdata[, nnmf_vars, drop = FALSE])
         )
       )@data
-  comps <- comps[, 1:object$num, drop = FALSE]
+  comps <- comps[, 1:object$num_comp, drop = FALSE]
   colnames(comps) <- names0(ncol(comps), object$prefix)
   newdata <- bind_cols(newdata, as_tibble(comps))
   newdata <-
@@ -166,7 +162,7 @@ bake.step_nnmf <- function(object, newdata, ...) {
 
 print.step_nnmf <-
   function(x, width = max(20, options()$width - 29), ...) {
-    cat("Non-negative matrix factorization with ")
+    cat("Non-negative matrix factorization for ")
     printer(colnames(x$res@org.data), x$terms, x$trained, width = width)
     invisible(x)
   }
@@ -177,11 +173,12 @@ print.step_nnmf <-
 tidy.step_nnmf <- function(x, ...) {
   if (is_trained(x)) {
     var_names <- colnames(x$res@other.data$H)
-    res <- tibble(terms = var_names, components  = x$num)
+    res <- tibble(terms = var_names, components  = x$num_comp)
   } else {
     term_names <- sel2char(x$terms)
-    res <- tibble(terms = term_names, components  = x$num)
+    res <- tibble(terms = term_names, components  = x$num_comp)
   }
+  res$id <- x$id
   res
 }
 

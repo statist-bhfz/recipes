@@ -5,9 +5,9 @@
 \alias{tidy.step_nnmf}
 \title{NNMF Signal Extraction}
 \usage{
-step_nnmf(recipe, ..., role = "predictor", trained = FALSE, num = 2,
-  options = list(verbose = 0), res = NULL, prefix = "NNMF", seed = 5999,
-  skip = FALSE)
+step_nnmf(recipe, ..., role = "predictor", trained = FALSE,
+  num_comp = 2, options = list(verbose = 0), res = NULL,
+  prefix = "NNMF", seed = 5999, skip = FALSE, id = "nnmf")
 
 \method{tidy}{step_nnmf}(x, ...)
 }
@@ -28,8 +28,8 @@ original variables will be used as predictors in a model.}
 \item{trained}{A logical to indicate if the quantities for
 preprocessing have been estimated.}
 
-\item{num}{The number of components to retain as new
-predictors. If \code{num} is greater than the number of columns
+\item{num_comp}{The number of components to retain as new
+predictors. If \code{num_comp} is greater than the number of columns
 or the number of possible components, a smaller value will be
 used.}
 
@@ -74,7 +74,7 @@ Non-negative matrixs factorization computes latent components that
 have non-negative values and take into account that the original data
 have non-negative values.
 
-The argument \code{num} controls the number of components that
+The argument \code{num_comp} controls the number of components that
 will be retained (the original variables that are used to derive
 the components are removed from the data). The new components
 will have names that begin with \code{prefix} and a sequence of
@@ -89,7 +89,7 @@ data(biomass)
 rec <- recipe(HHV ~ ., data = biomass) \%>\%
   add_role(sample, new_role = "id var") \%>\%
   add_role(dataset, new_role = "split variable") \%>\%
-  step_nnmf(all_predictors(), num = 2, seed = 473) \%>\%
+  step_nnmf(all_predictors(), num_comp = 2, seed = 473) \%>\%
   prep(training = biomass, retain = TRUE)
 
 juice(rec)
@@ -102,7 +102,5 @@ ggplot(juice(rec), aes(x = NNMF2, y = NNMF1, col = HHV)) + geom_point()
 \code{\link[=step_isomap]{step_isomap()}}, \code{\link[=recipe]{recipe()}}, \code{\link[=prep.recipe]{prep.recipe()}},
 \code{\link[=bake.recipe]{bake.recipe()}}
 }
-\concept{
-preprocessing nnmf projection_methods
-}
+\concept{preprocessing nnmf projection_methods}
 \keyword{datagen}
