@@ -2,7 +2,7 @@
 
 language: R
 dist: trusty
-sudo: true
+sudo: false
 cache: packages
 
 env:
