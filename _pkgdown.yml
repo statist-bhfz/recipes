@@ -114,7 +114,7 @@ reference:
     - matches("^check_")
   - title: Example Datasets
     contents:
-    - matches("(okc)|(biomass)|(credit)|(covers)")
+    - matches("(okc)|(biomass)|(credit)|(covers)|(Smithsonian)")
 
 navbar:
   left:
